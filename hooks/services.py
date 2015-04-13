@@ -1,15 +1,18 @@
 #!/usr/bin/python
 
+import subprocess
+
 from charmhelpers.core.services.base import Manager
 from charmhelpers.core.services import helpers
 from charmhelpers.fetch import install_remote
 from charmhelpers.core import hookenv
 
-import actions
-
 
 def clone_repo():
-    install_remote(hookenv.config('repo'))
+    install_remote(hookenv.config('repo', dest='/home/ubuntu/repo'))
+    subprocess.check_call(['python', '/home/ubuntu/repo/setup.py', 'install'])
+    # check for requirements file..
+    # subprocess.check_call(['pip', 'install', '-r', '/home/ubuntu/repo/requirements.txt'])
 
 def manage():
     manager = Manager([
@@ -25,14 +28,14 @@ def manage():
                 # e.g.: helpers.RequiredConfig('domain', 'auth_key'),
                 #       helpers.MysqlRelation(),
                 helpers.config_is_set('repo'),
-                helpers.MySQLRelation(optional=True),
+                helpers.MySQLRelation(relation_name='mysql', optional=True),
             ],
             'callbacks': [
                 clone_repo,
                 helpers.render_template(
                     source='/home/ubuntu/repo/juju.ini.tmpl',
-                    target='/home/ubuntu/repo/juju.ini'),
-                actions.log_start,
+                    target='/home/ubuntu/repo/juju.ini'
+                ),
             ],
         },
     ])

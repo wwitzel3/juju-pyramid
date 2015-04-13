@@ -1,8 +1,9 @@
 name: juju-pyramid
-summary: <Fill in summary here>
+summary: Pyramid Framework Charm
 maintainer: Wayne Witzel III <Wayne.Witzel.III@wwitzel3-ThinkPad-W540>
 description: |
-  <Multi-line description here>
+  The Pyramid Framework charm allows you to deploy Pyramid applications
+  without having to create a hard-coded charm for each application deployment.
 tags:
   # Replace "misc" with one or more whitelisted tags from this list:
   # https://juju.ubuntu.com/docs/authors-charm-metadata.html#charm-metadata
@@ -10,10 +11,12 @@ tags:
 subordinate: false
 provides:
   provides-relation:
-    interface: interface-name
+    interface: http
 requires:
-  requires-relation:
-    interface: interface-name
+  mysql:
+    interface: mysql
+  redis:
+    interface: redis
 peers:
   peer-relation:
     interface: interface-name

@@ -2,8 +2,8 @@
 
 import subprocess
 
-from charmhelpers.core.services.base import Manager
-from charmhelpers.core.services import helpers
+from charmhelpers.core.charmframework.base import Manager
+from charmhelpers.core.charmframework import helpers
 from charmhelpers.fetch import install_remote
 from charmhelpers.core import hookenv
 

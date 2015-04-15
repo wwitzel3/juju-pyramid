@@ -7,13 +7,21 @@ from charmhelpers.core.charmframework import helpers
 from charmhelpers.fetch import install_remote
 from charmhelpers.core import hookenv
 
+import relations
+
+RELATIONS = {
+    'JUJU_POSTGRESQL': relations.PostgreSQLRelation(relation_name='postgresql', optional=True),
+    'JUJU_REDIS': relations.RedisRelation(relation_name='redis', optional=True),
+}
+
+REQUIRES = [helpers.config_is_set('repo'),]
+REQUIRES.extend(RELATIONS.values())
 
 def clone_repo():
-    install_remote(hookenv.config('repo', dest='/home/ubuntu/repo'))
+    install_remote(hookenv.config('repo'), dest='/home/ubuntu/repo')
     subprocess.check_call(['apt-get', 'install', '-y', 'libpq-dev', 'python-dev'])
-    subprocess.check_call(['python', '/home/ubuntu/repo/setup.py', 'install'])
-    # check for requirements file..
-    # subprocess.check_call(['pip', 'install', '-r', '/home/ubuntu/repo/requirements.txt'])
+    # TODO(wwitzel3) fix the hard coded repo path
+    subprocess.check_call(['python', '/home/ubuntu/repo/review-queue.git/setup.py', 'install'])
 
 def manage():
     manager = Manager([
@@ -24,18 +32,13 @@ def manage():
                 # e.g.: helpers.HttpRelation()
                 helpers.HttpRelation(port=6543)
             ],
-            'requires': [
-                # data (contexts) required to start the service
-                # e.g.: helpers.RequiredConfig('domain', 'auth_key'),
-                #       helpers.MysqlRelation(),
-                helpers.config_is_set('repo'),
-                helpers.MySQLRelation(relation_name='mysql', optional=True),
-            ],
+            'requires': REQUIRES,
             'callbacks': [
                 clone_repo,
                 helpers.render_template(
                     source='/home/ubuntu/repo/juju.ini.tmpl',
-                    target='/home/ubuntu/repo/juju.ini'
+                    target='/home/ubuntu/repo/juju.ini',
+                    context={k: v.filtered_data() for k,v in RELATIONS.items()},
                 ),
             ],
         },

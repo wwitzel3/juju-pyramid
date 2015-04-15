@@ -18,12 +18,27 @@ REQUIRES = [helpers.config_is_set('repo'),]
 REQUIRES.extend(RELATIONS.values())
 
 REPO = 'review-queue.git'
+PATH = '/home/ubuntu/repo/%s' % (REPO)
+
+def start_service():
+    subprocess.check_call(['venv/bin/pserve',
+                           '-q',
+                           '--daemon',
+                           '--pid-file=pyramid.pid',
+                           'juju.ini'], cwd=PATH)
+
+def stop_service():
+    subprocess.check_call(['venv/bin/pserve',
+                           '--stop-daemon',
+                           '--pid-file=pyramid.pid',
+                           'juju.ini'], cwd=PATH)
 
 def clone_repo():
     install_remote(hookenv.config('repo'), dest='/home/ubuntu/repo')
-    subprocess.check_call(['apt-get', 'install', '-y', 'libpq-dev', 'python-dev'])
+    subprocess.check_call(['pip', 'install', 'virtualenv'])
+    subprocess.check_call(['apt-get', 'install', '-y', 'libpq-dev', 'python-dev', 'python-ubuntu-sso-client'])
     # TODO(wwitzel3) fix the hard coded repo path
-    subprocess.check_call(['python', '/home/ubuntu/repo/%s/setup.py' % (REPO), 'install'])
+    subprocess.check_call(['make', 'install'], cwd=PATH)
 
 def manage():
     manager = Manager([
@@ -39,10 +54,14 @@ def manage():
                 clone_repo,
                 helpers.render_template(
                     source='juju.ini.tmpl',
-                    target='/home/ubuntu/repo/%s/juju.ini' % (REPO),
+                    target='%s/juju.ini' % (PATH),
                     context={k: v.filtered_data() for k,v in RELATIONS.items()},
-                    templates_dir='/home/ubuntu/repo/%s' % (REPO),
+                    templates_dir=PATH,
                 ),
+                start_service(),
+            ],
+            'cleanup':[
+                stop_service(),
             ],
         },
     ])

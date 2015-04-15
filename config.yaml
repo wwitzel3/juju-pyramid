@@ -1,5 +1,5 @@
 options:
   repo:
     type: string
-    default: "git@github.com:wwitzel3/review-queue.git"
+    default: "https://github.com/wwitzel3/review-queue.git"
 

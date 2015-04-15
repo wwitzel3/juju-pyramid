@@ -10,6 +10,7 @@ from charmhelpers.core import hookenv
 
 def clone_repo():
     install_remote(hookenv.config('repo', dest='/home/ubuntu/repo'))
+    subprocess.check_call(['apt-get', 'install', '-y', 'libpq-dev', 'python-dev'])
     subprocess.check_call(['python', '/home/ubuntu/repo/setup.py', 'install'])
     # check for requirements file..
     # subprocess.check_call(['pip', 'install', '-r', '/home/ubuntu/repo/requirements.txt'])

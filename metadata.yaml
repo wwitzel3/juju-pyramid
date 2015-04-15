@@ -19,3 +19,6 @@ requires:
   redis:
     interface: redis
     optional: true
+  mongodb:
+    interface: mongodb
+    optional: true

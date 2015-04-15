@@ -12,6 +12,7 @@ import relations
 RELATIONS = {
     'JUJU_POSTGRESQL': relations.PostgreSQLRelation(relation_name='postgresql', optional=True),
     'JUJU_REDIS': relations.RedisRelation(relation_name='redis', optional=True),
+    'JUJU_MONGODB': relations.MongoDBRelation(relation_name='mongodb', optional=True),
 }
 
 REQUIRES = [helpers.config_is_set('repo'),]

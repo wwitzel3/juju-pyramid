@@ -15,8 +15,7 @@ provides:
 requires:
   mysql:
     interface: mysql
+    optional: true
   redis:
     interface: redis
-peers:
-  peer-relation:
-    interface: interface-name
+    optional: true

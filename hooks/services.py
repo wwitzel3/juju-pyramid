@@ -2,6 +2,11 @@
 
 import subprocess
 
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    )
+
 from charmhelpers.core.charmframework.base import Manager
 from charmhelpers.core.charmframework import helpers
 from charmhelpers.fetch import install_remote
@@ -17,11 +22,13 @@ RELATIONS = {
 REQUIRES = [helpers.config_is_set('repo'),]
 REQUIRES.extend(RELATIONS.values())
 
+REPO = 'review-queue.git'
+
 def clone_repo():
     install_remote(hookenv.config('repo'), dest='/home/ubuntu/repo')
     subprocess.check_call(['apt-get', 'install', '-y', 'libpq-dev', 'python-dev'])
     # TODO(wwitzel3) fix the hard coded repo path
-    subprocess.check_call(['python', '/home/ubuntu/repo/review-queue.git/setup.py', 'install'])
+    subprocess.check_call(['python', '/home/ubuntu/repo/%s/setup.py' % (REPO), 'install'])
 
 def manage():
     manager = Manager([
@@ -36,9 +43,10 @@ def manage():
             'callbacks': [
                 clone_repo,
                 helpers.render_template(
-                    source='/home/ubuntu/repo/juju.ini.tmpl',
-                    target='/home/ubuntu/repo/juju.ini',
+                    source='juju.ini.tmpl',
+                    target='/home/ubuntu/repo/%s/juju.ini' % (REPO),
                     context={k: v.filtered_data() for k,v in RELATIONS.items()},
+                    templates_dir='/home/ubuntu/repo/%s' % (REPO),
                 ),
             ],
         },

@@ -2,11 +2,6 @@
 
 import subprocess
 
-from jinja2 import (
-    Environment,
-    FileSystemLoader,
-    )
-
 from charmhelpers.core.charmframework.base import Manager
 from charmhelpers.core.charmframework import helpers
 from charmhelpers.fetch import install_remote
